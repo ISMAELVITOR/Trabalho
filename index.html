@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CodeMirror CSS e JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/python/python.min.js"></script>
+
+    <title>Editor Python</title>
+
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            
+            width: 50%;
+            height: calc(100vh - 50px);
+            position: absolute;
+            top: 40px;
+            left: 0px;
+            border: 1px solid white;
+            background-color: #000000; 
+            padding: 10px;          
+        }
+
+        .console {
+            width: 50%;
+            height: calc(100vh - 50px);
+            position: absolute;
+            top: 40px;
+            right: 0px;
+            border: 1px solid white;
+            background-color: #000000;  
+            font-family: monospace;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .CodeMirror {
+            width: 100%;
+            height: 100%;
+            font-size: 16px;
+            background-color: #000000;
+            color: white;
+        }
+
+        .CodeMirror-gutters {
+            background: #000000;
+        }
+
+        .CodeMirror-linenumber {
+            color: white;
+        }
+
+        .CodeMirror-cursor {
+            border-left: 1px solid rgb(255, 255, 255) !important; /* Altere para a cor desejada */
+        }
+        
+        button {
+            background-color: #000000;
+            color: white;
+            border: 1px solid #ccc;
+            width: 150px;
+            height: 40px;
+            font-family: monospace;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="entradaCodigoPython"></div>
+    <div class="console" id="saida">Texto aparecerá aqui</div>
+    <button id="botaoRun">Run</button>
+
+    <script>
+ 
+        var editor = CodeMirror(document.getElementById("entradaCodigoPython"), {
+            mode: "python",
+            lineNumbers: true,
+            theme: "default"
+        });
+
+        let worker = new Worker("worker.js");
+
+        worker.onmessage = function(event) {
+    if (event.data.error) {
+        document.getElementById("saida").innerText = "Erro: " + event.data.error;
+    } else {
+        document.getElementById("saida").innerText = event.data.output || "Nenhuma saída gerada.";
+    }
+};
+
+
+        document.getElementById("botaoRun").addEventListener("click", function() {
+            document.getElementById("saida").innerText = "Executando...";
+            worker.postMessage({ code: editor.getValue() });
+        });
+    
+    </script>
+</body>
+</html>
+
+
+
+
+
+
